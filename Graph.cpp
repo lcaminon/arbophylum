@@ -5,12 +5,14 @@
 // Email   <loic@caminondo.fr>
 // 
 // Started on  Thu Sep 12 20:46:04 2013 Loic Caminondo
-// Last update Sun Sep 15 22:38:40 2013 Loic Caminondo
+// Last update Mon Sep 16 00:57:32 2013 Loic Caminondo
 //
 
+#include		<algorithm>
 #include		<fstream>
 #include		<iostream>
 #include		<cstdlib>
+#include		<ctime>
 #include		"Graph.hh"
 
 Graph::Graph()
@@ -33,9 +35,11 @@ void			Graph::newTree()
 {
   std::vector<Entity*> tmp;
 
+  std::cout << "New tree." << std::endl;
   tmp.push_back(new Entity(NULL));
   _entities.push_back(tmp);
   (*tmp.begin())->setPos(sf::Vector2<float>(100, 100));
+  replaceEntity();
 }
 
 void			Graph::loadTree(char *filename)
@@ -48,7 +52,19 @@ void			Graph::loadTree(char *filename)
   std::ifstream file(filename, std::ifstream::in);
 
   readdr[NULL] = NULL;
+  if (!file.good())
+    {
+      newTree();
+      return;
+    }
+  std::cout << "Load tree." << std::endl;
   file >> x;
+  if (x <= 0)
+    {
+      std::cout << "Fail." << std::endl;
+      newTree();
+      return;
+    }
   _entities.resize(x);
   x = -1;
   while (++x < _entities.size())
@@ -64,12 +80,18 @@ void			Graph::loadTree(char *filename)
 	  _entities[x][y]->deserialize(file);
 	}
     }
+  replaceEntity();
 }
 
-void			Graph::saveToFile()
+void			Graph::saveToFile(std::string str = "saves/save-")
 {
-  std::ofstream		file("saves/save.tree", std::ofstream::out);
+  time_t timer = time(NULL);
+  str = str + ctime(&timer);
+  std::replace(str.begin(), str.end(), ' ', '-');
+  str.erase (str.end()-1);
+  std::ofstream file((str + ".tree").c_str(), std::ofstream::out | std::ofstream::trunc);
 
+  std::cout << "Save to file ..." << std::endl;
   file << _entities.size() << "\r";
   for(std::vector<std::vector<Entity*> >::iterator i = _entities.begin(); i != _entities.end();++i)
     {
@@ -77,11 +99,47 @@ void			Graph::saveToFile()
       for(std::vector<Entity*>::iterator j = (*i).begin(); j != (*i).end();++j)
 	file << *(*j);
     }
+  file.close();
 }
 
 void			Graph::saveToImage()
 {
-  
+  time_t timer = time(NULL);
+  std::string str("shots/shot-");
+  str = str + ctime(&timer);
+  std::replace(str.begin(), str.end(), ' ', '-');
+  str.erase (str.end()-1);
+  sf::RenderTexture	texture;
+  int height;
+  int width;
+
+  replaceEntity();
+  height = width = 0;
+  for(std::vector<std::vector<Entity*> >::iterator i = _entities.begin(); i != _entities.end();++i)
+    {
+      for(std::vector<Entity*>::iterator j = (*i).begin(); j != (*i).end();++j)
+	{
+	  sf::Vector2<float> vect;
+
+	  vect = (*j)->getBotRight();
+	  if (height < vect.y)
+	    height = vect.y;
+	  if (width < vect.x)
+	    width = vect.x;
+	}
+    }  
+  texture.create(width, height);
+  texture.clear(sf::Color::White);
+  for(std::vector<std::vector<Entity*> >::iterator i = _entities.begin(); i != _entities.end();++i)
+    {
+      for(std::vector<Entity*>::iterator j = (*i).begin(); j != (*i).end();++j)
+	{
+	  (*j)->draw(texture);
+	}
+    }
+  texture.display();
+  std::cout << texture.getTexture().copyToImage().getSize().x << " " << texture.getTexture().copyToImage().getSize().y << std::endl;
+  texture.getTexture().copyToImage().saveToFile((str + ".jpg").c_str());
 }
 
 void			Graph::replaceEntity()
@@ -127,7 +185,6 @@ void			Graph::replaceEntity()
 
 void			Graph::draw(sf::RenderWindow &window)
 {
-  replaceEntity();
   for(std::vector<std::vector<Entity*> >::iterator i = _entities.begin(); i != _entities.end();++i)
     {
       for(std::vector<Entity*>::iterator j = (*i).begin(); j != (*i).end();++j)
@@ -200,6 +257,7 @@ void			Graph::gestEvent(sf::RenderWindow &window, sf::Time time)
       	{
 	  if (_target != NULL)
 	    _target->write(event.text.unicode);
+	  replaceEntity();
       	}
       
       if (event.type == sf::Event::KeyPressed)
@@ -242,6 +300,7 @@ void			Graph::gestEvent(sf::RenderWindow &window, sf::Time time)
 	      if (!inside)
 		_target = NULL;
 	    }
+	  replaceEntity();
 	}
     }
 }

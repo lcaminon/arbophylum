@@ -5,7 +5,7 @@
 // Email   <loic@caminondo.fr>
 // 
 // Started on  Thu Sep 12 22:34:52 2013 Loic Caminondo
-// Last update Sun Sep 15 22:38:27 2013 Loic Caminondo
+// Last update Mon Sep 16 00:52:49 2013 Loic Caminondo
 //
 
 #include		"Graph.hh"
@@ -50,6 +50,15 @@ Entity::~Entity()
     }
 }
 
+sf::Vector2<float>	Entity::getBotRight()
+{
+  sf::Vector2<float>	vect;
+
+  vect.x = _rect.getGlobalBounds().left + _rect.getGlobalBounds().width;
+  vect.y = _rect.getGlobalBounds().top + _rect.getGlobalBounds().height;
+  return (vect);
+}
+
 void			Entity::write(wchar_t c)
 {
   std::wstring tmp;
@@ -86,25 +95,25 @@ void			Entity::setRect()
   _minus.setPosition(_plus.getGlobalBounds().left + _plus.getGlobalBounds().width, _plus.getGlobalBounds().top);
 }
 
-void			Entity::draw(sf::RenderWindow &window)
+void			Entity::draw(sf::RenderTarget &render)
 {
-  window.draw(_rect);
+  render.draw(_rect);
   if (_target != NULL)
     {
       _rect.setPosition(sf::Vector2<float>(_target->getPosition().x - 3, _target->getPosition().y));
       _rect.setSize(sf::Vector2<float>(_target->getLocalBounds().width + 6, _target->getLocalBounds().height + 15));
-      window.draw(_rect);
+      render.draw(_rect);
       setRect();
-      window.draw(_plus);
-      window.draw(_minus);
+      render.draw(_plus);
+      render.draw(_minus);
     }
-  window.draw(_title);
-  window.draw(_def);
+  render.draw(_title);
+  render.draw(_def);
   if (_father != NULL)
     {
       _line[0].position = sf::Vector2<float>(_rect.getGlobalBounds().left, _rect.getGlobalBounds().top + _rect.getGlobalBounds().height / 2);
       _line[1].position = _father->getAnchor();
-      window.draw(_line, 2, sf::Lines);
+      render.draw(_line, 2, sf::Lines);
     }
 }
 

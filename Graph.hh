@@ -5,7 +5,7 @@
 // Email   <loic@caminondo.fr>
 // 
 // Started on  Thu Sep 12 09:31:01 2013 Loic Caminondo
-// Last update Sun Sep 15 22:26:09 2013 Loic Caminondo
+// Last update Sun Sep 15 23:20:28 2013 Loic Caminondo
 //
 
 #ifndef			GRAPH_HH
@@ -22,7 +22,7 @@ class			Graph : public Singleton<Graph>
   Entity *_target;
   std::vector<std::vector<Entity*> > _entities;
 
-  void saveToFile();
+  void saveToFile(std::string str);
   void saveToImage();
   void replaceEntity();
 public:

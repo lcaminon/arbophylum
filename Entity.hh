@@ -5,7 +5,7 @@
 // Email   <loic@caminondo.fr>
 // 
 // Started on  Thu Sep 12 08:56:53 2013 Loic Caminondo
-// Last update Sun Sep 15 22:20:40 2013 Loic Caminondo
+// Last update Mon Sep 16 00:49:03 2013 Loic Caminondo
 //
 
 #ifndef			ENTITY_HH
@@ -45,9 +45,10 @@ class			Entity
 public:
   Entity(Entity *father);
   ~Entity();
-  void draw(sf::RenderWindow &window);
+  void draw(sf::RenderTarget &render);
   void setPos(sf::Vector2<float> pos);
   int getPos();
+  sf::Vector2<float> getBotRight();
   int getHeight();
   int getWidth();
   State inside(sf::Vector2<float> pos);
