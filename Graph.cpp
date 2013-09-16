@@ -1,13 +1,14 @@
 //
 // Graph.cpp for arbrePhilo in /home/lcaminon/Documents/projets/arbrePhilo
-// 
+//
 // Made by Loic Caminondo
 // Email   <loic@caminondo.fr>
-// 
+//
 // Started on  Thu Sep 12 20:46:04 2013 Loic Caminondo
 // Last update Mon Sep 16 00:57:32 2013 Loic Caminondo
 //
 
+#include        <sstream>
 #include		<algorithm>
 #include		<fstream>
 #include		<iostream>
@@ -85,8 +86,10 @@ void			Graph::loadTree(char *filename)
 
 void			Graph::saveToFile(std::string str = "saves/save-")
 {
+  std::ostringstream oss;
   time_t timer = time(NULL);
-  str = str + ctime(&timer);
+  oss << timer;
+  str = str + oss.str();
   std::replace(str.begin(), str.end(), ' ', '-');
   str.erase (str.end()-1);
   std::ofstream file((str + ".tree").c_str(), std::ofstream::out | std::ofstream::trunc);
@@ -104,9 +107,11 @@ void			Graph::saveToFile(std::string str = "saves/save-")
 
 void			Graph::saveToImage()
 {
+  std::ostringstream oss;
   time_t timer = time(NULL);
+  oss << timer;
   std::string str("shots/shot-");
-  str = str + ctime(&timer);
+  str = str + oss.str();
   std::replace(str.begin(), str.end(), ' ', '-');
   str.erase (str.end()-1);
   sf::RenderTexture	texture;
@@ -127,7 +132,7 @@ void			Graph::saveToImage()
 	  if (width < vect.x)
 	    width = vect.x;
 	}
-    }  
+    }
   texture.create(width, height);
   texture.clear(sf::Color::White);
   for(std::vector<std::vector<Entity*> >::iterator i = _entities.begin(); i != _entities.end();++i)
@@ -138,8 +143,7 @@ void			Graph::saveToImage()
 	}
     }
   texture.display();
-  std::cout << texture.getTexture().copyToImage().getSize().x << " " << texture.getTexture().copyToImage().getSize().y << std::endl;
-  texture.getTexture().copyToImage().saveToFile((str + ".jpg").c_str());
+  texture.getTexture().copyToImage().saveToFile(str + ".jpg");
 }
 
 void			Graph::replaceEntity()
@@ -259,7 +263,7 @@ void			Graph::gestEvent(sf::RenderWindow &window, sf::Time time)
 	    _target->write(event.text.unicode);
 	  replaceEntity();
       	}
-      
+
       if (event.type == sf::Event::KeyPressed)
 	{
 	  if (event.key.code == sf::Keyboard::Escape)
